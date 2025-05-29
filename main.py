@@ -2,6 +2,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
 from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
 import wandb
+import torch
 
 tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt2-medium", use_fast=False)
 tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
@@ -56,6 +57,10 @@ wandb.init(project="cc-finetuning", config={
 
 # ⑤ メモリ節約：勾配チェックポイントを有効化
 model.gradient_checkpointing_enable()
+
+# ⑥ モデルを GPU に転送
+if torch.cuda.is_available():
+    model = model.to("cuda")
 
 # 学習設定
 training_args = TrainingArguments(
