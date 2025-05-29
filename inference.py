@@ -1,4 +1,5 @@
 import argparse
+import os
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 def main():
@@ -8,7 +9,7 @@ def main():
     parser.add_argument(
         "--model_dir",
         type=str,
-        default="results",
+        default=os.path.join(os.path.dirname(__file__), "results"),
         help="Path to the fine-tuned model folder under cc-finetuning"
     )
     parser.add_argument(
@@ -30,6 +31,11 @@ def main():
         help="How many independent samples to generate"
     )
     args = parser.parse_args()
+
+    # normalize and validate model_dir
+    args.model_dir = os.path.abspath(os.path.expanduser(args.model_dir))
+    if not os.path.isdir(args.model_dir):
+        raise FileNotFoundError(f"Model directory not found: {args.model_dir}")
 
     # Load tokenizer and model from the specified directory
     tokenizer = GPT2Tokenizer.from_pretrained(args.model_dir)
