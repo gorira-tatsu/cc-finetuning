@@ -47,6 +47,7 @@ def main():
         tokenizer = GPT2Tokenizer.from_pretrained(args.model_dir)
 
     model = GPT2LMHeadModel.from_pretrained(args.model_dir)
+    model.resize_token_embeddings(len(tokenizer))
     model.eval()
 
     # Encode prompt and generate
