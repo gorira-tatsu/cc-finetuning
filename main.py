@@ -57,6 +57,7 @@ wandb.init(project="cc-finetuning", config={
 
 # ⑤ メモリ節約：勾配チェックポイントを有効化
 model.gradient_checkpointing_enable()
+model.config.use_cache = False  # disable use_cache for checkpointing
 
 # ⑥ モデルを GPU に転送
 if torch.cuda.is_available():
