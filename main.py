@@ -62,16 +62,17 @@ training_args = TrainingArguments(
     output_dir="./results",
     overwrite_output_dir=True,
     num_train_epochs=3,
-    per_device_train_batch_size=4,         # メモリ軽減
+    per_device_train_batch_size=4,
     per_device_eval_batch_size=8,
     do_eval=True,
     eval_steps=500,
     save_steps=1000,
     logging_steps=100,
     report_to="wandb",
-    fp16=True,                             # 混合精度でメモリ削減
-    gradient_accumulation_steps=4,         # 勾配累積で実質バッチサイズを増加
-    gradient_checkpointing=True,           # 勾配チェックポイント有効化
+    fp16=True,
+    gradient_accumulation_steps=4,
+    gradient_checkpointing=True,
+    deepspeed="ds_config.json",  # 追加: DeepSpeed Zero3 でメモリ分散
 )
 
 # Trainer 初期化 & 学習実行
