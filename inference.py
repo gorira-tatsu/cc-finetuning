@@ -37,8 +37,15 @@ def main():
     if not os.path.isdir(args.model_dir):
         raise FileNotFoundError(f"Model directory not found: {args.model_dir}")
 
-    # Load tokenizer and model from the specified directory
-    tokenizer = GPT2Tokenizer.from_pretrained(args.model_dir)
+    # Load tokenizer, with fallback if custom vocab is missing
+    tokenizer_files = ["vocab.json", "merges.txt", "tokenizer.json", "vocab.txt"]
+    has_tokenizer = any(os.path.exists(os.path.join(args.model_dir, f)) for f in tokenizer_files)
+    if not has_tokenizer:
+        print("Warning: no tokenizer files found in model_dir; falling back to default GPT-2 tokenizer.")
+        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+    else:
+        tokenizer = GPT2Tokenizer.from_pretrained(args.model_dir)
+
     model = GPT2LMHeadModel.from_pretrained(args.model_dir)
     model.eval()
 
