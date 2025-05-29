@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from datasets import load_dataset
 from transformers import DataCollatorForLanguageModeling, Trainer, TrainingArguments
+import wandb
 
 tokenizer = AutoTokenizer.from_pretrained("rinna/japanese-gpt2-medium", use_fast=False)
 tokenizer.do_lower_case = True  # due to some bug of tokenizer config loading
@@ -28,6 +29,14 @@ data_collator = DataCollatorForLanguageModeling(
     tokenizer=tokenizer, mlm=False
 )
 
+# Wandb 初期化（API キーは環境変数か事前ログインで設定）
+wandb.login()
+wandb.init(project="cc-finetuning", config={
+    "num_train_epochs": 3,
+    "per_device_train_batch_size": 8,
+    "per_device_eval_batch_size": 8
+})
+
 # 学習設定
 training_args = TrainingArguments(
     output_dir="./results",
@@ -35,10 +44,12 @@ training_args = TrainingArguments(
     num_train_epochs=3,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
-    evaluation_strategy="steps",
-    eval_steps=500,
+    do_eval=True,
+    evaluate_during_training=True,
+    evaluate_during_training_steps=500,
     save_steps=1000,
     logging_steps=100,
+    report_to="wandb",
 )
 
 # Trainer 初期化 & 学習実行
