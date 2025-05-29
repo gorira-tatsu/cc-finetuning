@@ -20,7 +20,7 @@ def tokenize_function(examples):
     return tokenizer(examples["text"])
 
 # 長文を block_size 単位に分割するヘルパー
-block_size = 1024
+block_size = 512  # メモリ節約のためチャンクを小さく
 def group_texts(examples):
     concatenated = {k: sum(examples[k], []) for k in examples.keys()}
     total_length = (len(concatenated["input_ids"]) // block_size) * block_size
@@ -54,18 +54,24 @@ wandb.init(project="cc-finetuning", config={
     "per_device_eval_batch_size": 8
 })
 
+# ⑤ メモリ節約：勾配チェックポイントを有効化
+model.gradient_checkpointing_enable()
+
 # 学習設定
 training_args = TrainingArguments(
     output_dir="./results",
     overwrite_output_dir=True,
     num_train_epochs=3,
-    per_device_train_batch_size=8,
+    per_device_train_batch_size=4,         # メモリ軽減
     per_device_eval_batch_size=8,
     do_eval=True,
     eval_steps=500,
     save_steps=1000,
     logging_steps=100,
     report_to="wandb",
+    fp16=True,                             # 混合精度でメモリ削減
+    gradient_accumulation_steps=4,         # 勾配累積で実質バッチサイズを増加
+    gradient_checkpointing=True,           # 勾配チェックポイント有効化
 )
 
 # Trainer 初期化 & 学習実行
