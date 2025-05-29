@@ -78,7 +78,7 @@ training_args = TrainingArguments(
     fp16=True,
     gradient_accumulation_steps=4,
     gradient_checkpointing=True,
-    deepspeed="ds_config.json",  # 追加: DeepSpeed Zero3 でメモリ分散
+    # deepspeed="ds_config.json",  # removed to avoid AttributeError
 )
 
 # Trainer 初期化 & 学習実行
